@@ -1,0 +1,75 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+        <link href="/style.css" rel="stylesheet">
+        <title></title>
+    </head>    
+    <body>
+        <div id = "homepage">
+            <h1>Look for restaurants near you</h1>
+            <div id="restaurants"></div>
+        </div>
+
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+        <script src="https://unpkg.com/react@15/dist/react.js"></script>
+        <script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+
+        <!--Create React Component-->
+        <script type="text/babel">
+        
+        var Restaurants = React.createClass({
+            getInitialState: function(){
+                return({
+                    restaurants: []
+                })
+            },
+
+            render: function(){
+                var restaurants = this.state.restaurants;
+                restaurants = restaurants.map(function(restaurant, index){
+                    return (
+                        <li key={index}>
+                            <span className={restaurant.available}></span>
+                            <span className="name">{restaurant.name}</span>
+                            <span className="rank">{restaurant.rank}</span>
+                            <span className="distance">{Math.floor(restaurant.dist.calculated/1000)} km</span>
+                        </li>
+                    )
+                });
+                return (
+                    <div id="restaurant-container" onSubmit={this.handleSubmit}>
+                        <form id="search">
+                            <label>Enter your latitude</label>
+                            <input type="text" ref="lat" placeholder="latitude" required />
+                            <label>Enter your longitude</label>
+                            <input type="text" ref="lng" placeholder="longitude" required />
+                            <input type="submit" value="Find" />
+                        </form>
+                        <ul>{restaurants}</ul>
+                    </div>
+                )
+            },
+
+            handleSubmit: function(e){
+                e.preventDefault();
+                var lng = this.refs.lng.value;
+                var lat  = this.refs.lat.value;
+                
+                fetch('/api/restaurants?lng=' + lng + '&lat=' + lat)
+                .then(function(data){
+                    return data.json();
+                })
+                .then(json => {
+                    this.setState({
+                        restaurants: json
+                    })
+                })
+            }
+        })
+
+        ReactDOM.render(<Restaurants />, document.getElementById('restaurants'));
+
+        </script>
+    </body>
+</html>
